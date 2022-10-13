@@ -1,9 +1,10 @@
 import os, os.path
 from datetime import datetime
 from datetime import date
-from skimage.measure import compare_ssim
+#from skimage.measure import compare_ssim
+from skimage.metrics import structural_similarity
 import imutils
-from cv2 import cv2 as cv2
+import cv2 as cv2
 import numpy as np
 import time
 import unittest
@@ -20,7 +21,7 @@ class Find_Differences(unittest.TestCase):
     __nameA = None
     __nameB = None
     __directory = None
-    __displa_time = 2000
+    __display_time = 2000
 
     @classmethod
     def setUpClass(cls):
@@ -62,10 +63,10 @@ class Find_Differences(unittest.TestCase):
             print("comparing images : {}".format(counter_1))
             imageA = cv2.imread("{}/{}.jpg".format(self.__clips[0], counter_1))
             self.__nameA = (counter_1)
-            # cv2.imshow("Temp_A.jpg", imageA)
+            cv2.imshow("Temp_A.jpg", imageA)
             imageB = cv2.imread("{}/{}.jpg".format(self.__clips[1], counter_1))
             self.__nameB = (counter_1)
-            # cv2.imshow("Temp_B.jpg", imageB)
+            cv2.imshow("Temp_B.jpg", imageB)
             # cv2.waitKey(0)
             # convert the images to grayscale
             grayA = cv2.cvtColor(imageA, cv2.COLOR_BGR2GRAY)
@@ -73,7 +74,7 @@ class Find_Differences(unittest.TestCase):
 
             # compute the Structural Similarity Index (SSIM) between the two
             # images, ensuring that the difference image is returned
-            (score, diff) = compare_ssim(grayA, grayB, full=True, multichannel=False)
+            (score, diff) = structural_similarity(grayA, grayB, full=True, channel_axis=False)
             diff = (diff * 255).astype("uint8")
             print("SSIM: {}".format(score))
 
@@ -114,17 +115,14 @@ class Find_Differences(unittest.TestCase):
             # cv2.imshow("{}".format(self.__nameB), imageB)
             # cv2.imshow("Diff", diff)
             # cv2.imshow("Thresh", thresh)
-            cv2.waitKey(self.__displa_time)
-            # time.sleep(5)
+            cv2.waitKey(self.__display_time)
             cv2.destroyAllWindows()
 
         self.change_name()
-        #folder = 'delta_2020-03-08_11_40_47'
         cwd = os.getcwd()
         print("current directory is: {}".format(cwd))
         print("Looking for: {}\{}".format(cwd, self.__directory))
-        assert (os.path.exists("{}\{}".format(cwd, self.__directory))) == 0
-
+        assert (os.path.exists("{}\{}".format(cwd, self.__directory)))
 
     @staticmethod
     def change_name():
